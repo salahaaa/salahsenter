@@ -1,0 +1,71 @@
+{
+  "nodeVersion": "22.19.0",
+  "requiredWorkflows": [
+    {
+      "file": "ci.yml",
+      "name": "CI",
+      "purpose": "Build, lint, typecheck, tests, migrations and audit"
+    },
+    {
+      "file": "security.yml",
+      "name": "Security Pipeline",
+      "purpose": "Secret, dependency and CodeQL checks"
+    },
+    {
+      "file": "apply-migrations.yml",
+      "name": "Apply database migrations",
+      "purpose": "Protected Production migration history"
+    },
+    {
+      "file": "bootstrap-first-admin.yml",
+      "name": "Bootstrap first platform administrator",
+      "purpose": "One-time first Production administrator"
+    },
+    {
+      "file": "apply-staging-migrations.yml",
+      "name": "Apply Staging database migrations",
+      "purpose": "Manual Staging migration history"
+    },
+    {
+      "file": "bootstrap-first-staging-admin.yml",
+      "name": "Bootstrap first Staging platform administrator",
+      "purpose": "One-time first Staging administrator"
+    },
+    {
+      "file": "provision-staging-test-team.yml",
+      "name": "Provision isolated Staging test team",
+      "purpose": "Individual least-privilege QA accounts"
+    },
+    {
+      "file": "staging-e2e.yml",
+      "name": "Staging operational E2E",
+      "purpose": "Optional isolated Staging operational smoke"
+    },
+    {
+      "file": "staging-release-validation.yml",
+      "name": "Staging release validation and evidence",
+      "purpose": "Build, browser, Axe, Lighthouse and evidence artifacts"
+    },
+    {
+      "file": "staging-backup-recovery-drill.yml",
+      "name": "Staging backup and isolated recovery drill",
+      "purpose": "Verified R2 backup and isolated recovery evidence"
+    }
+  ],
+  "requiredDocumentation": [
+    "README.md",
+    "DEPLOYMENT.md",
+    "docs/GITHUB_VERCEL_READY_CHECKLIST.md",
+    "docs/RELEASE_WORKFLOW_CATALOG_2026-07-23_AR.md",
+    "docs/UPGRADE_GUIDE_2026-07-23_AR.md",
+    "docs/RELEASE_NOTES_TEMPLATE.md",
+    "docs/ONE_COMMAND_UPDATE_CHANNEL_2026-07-25_AR.md",
+    "docs/SAFE_TEST_EXPERIENCE_BOOTSTRAP_2026-07-25_AR.md",
+    "docs/BRANCH_AND_VERCEL_TEST_DEPLOYMENT_RUNBOOK_2026-07-25_AR.md"
+  ],
+  "requiredEnvironmentTemplates": [
+    ".env.example",
+    ".env.staging.example",
+    ".env.production.example"
+  ]
+}

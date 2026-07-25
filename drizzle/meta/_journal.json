@@ -1,0 +1,629 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1780955436098,
+      "tag": "0000_blushing_green_goblin",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1781707083981,
+      "tag": "0001_short_azazel",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1781707747618,
+      "tag": "0002_massive_thunderbolt_ross",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1781709017622,
+      "tag": "0003_cool_sersi",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1781710058218,
+      "tag": "0004_majestic_natasha_romanoff",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1781710958544,
+      "tag": "0005_nifty_nehzno",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1781712206521,
+      "tag": "0006_ambiguous_toad",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1781718399497,
+      "tag": "0007_strong_mockingbird",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1781737689719,
+      "tag": "0008_goofy_venus",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1781739262205,
+      "tag": "0009_sour_rocket_racer",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1781739816152,
+      "tag": "0010_chunky_slipstream",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1781826695385,
+      "tag": "0011_eager_dorian_gray",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1781827332571,
+      "tag": "0012_wakeful_rictor",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1781887451610,
+      "tag": "0013_lumpy_wilson_fisk",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1781889390500,
+      "tag": "0014_keen_riptide",
+      "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "7",
+      "when": 1781890255911,
+      "tag": "0015_past_gravity",
+      "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1781998569575,
+      "tag": "0016_peaceful_chimera",
+      "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1782497117131,
+      "tag": "0017_lethal_morbius",
+      "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1782498913967,
+      "tag": "0018_precise_admin_permissions",
+      "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1782498913968,
+      "tag": "0019_core_architecture_indexes",
+      "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1782498913969,
+      "tag": "0020_atomic_inventory_idempotency",
+      "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1782498913970,
+      "tag": "0021_background_jobs",
+      "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1782498913971,
+      "tag": "0022_admin_promotional_offers",
+      "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1782498913972,
+      "tag": "0023_offer_promotion_package_text",
+      "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1782498913973,
+      "tag": "0024_search_pg_trgm_indexes",
+      "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1782498913974,
+      "tag": "0025_cart_returns_production",
+      "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1782498913975,
+      "tag": "0026_payment_receipts",
+      "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "7",
+      "when": 1782498913976,
+      "tag": "0027_finance_settlements",
+      "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "7",
+      "when": 1782498913977,
+      "tag": "0028_payment_refunds_provider_events",
+      "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "7",
+      "when": 1782498913978,
+      "tag": "0029_customer_experience",
+      "breakpoints": true
+    },
+    {
+      "idx": 30,
+      "version": "7",
+      "when": 1782498913979,
+      "tag": "0030_visibility_schedule",
+      "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "7",
+      "when": 1782498913980,
+      "tag": "0031_fine_grained_store_employee_permissions",
+      "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "7",
+      "when": 1782498913981,
+      "tag": "0032_store_offer_item_quantities",
+      "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "7",
+      "when": 1782498913982,
+      "tag": "0033_offer_bundle_inventory_dissolution",
+      "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "7",
+      "when": 1782498913983,
+      "tag": "0034_admin_platform_security_center",
+      "breakpoints": true
+    },
+    {
+      "idx": 35,
+      "version": "7",
+      "when": 1782498913984,
+      "tag": "0035_auto_scaling_intelligence",
+      "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "7",
+      "when": 1782498913985,
+      "tag": "0036_accounting_integration_architecture",
+      "breakpoints": true
+    },
+    {
+      "idx": 37,
+      "version": "7",
+      "when": 1782498913986,
+      "tag": "0037_local_sync_agent_runtime",
+      "breakpoints": true
+    },
+    {
+      "idx": 38,
+      "version": "7",
+      "when": 1782498913987,
+      "tag": "0038_enterprise_erp_integration_infrastructure",
+      "breakpoints": true
+    },
+    {
+      "idx": 39,
+      "version": "7",
+      "when": 1782498913988,
+      "tag": "0039_erp_financial_inventory_cycle",
+      "breakpoints": true
+    },
+    {
+      "idx": 40,
+      "version": "7",
+      "when": 1782498913989,
+      "tag": "0040_sync_reliability_reconciliation",
+      "breakpoints": true
+    },
+    {
+      "idx": 41,
+      "version": "7",
+      "when": 1782498913990,
+      "tag": "0041_store_commerce_type",
+      "breakpoints": true
+    },
+    {
+      "idx": 42,
+      "version": "7",
+      "when": 1782498913991,
+      "tag": "0042_showcase_product_sale_status",
+      "breakpoints": true
+    },
+    {
+      "idx": 43,
+      "version": "7",
+      "when": 1782498913992,
+      "tag": "0043_product_commerce_type",
+      "breakpoints": true
+    },
+    {
+      "idx": 44,
+      "version": "7",
+      "when": 1782498913993,
+      "tag": "0044_store_operation_status",
+      "breakpoints": true
+    },
+    {
+      "idx": 45,
+      "version": "7",
+      "when": 1782498913994,
+      "tag": "0045_financial_providers_registry",
+      "breakpoints": true
+    },
+    {
+      "idx": 46,
+      "version": "7",
+      "when": 1782498913995,
+      "tag": "0046_payment_method_config_hardening",
+      "breakpoints": true
+    },
+    {
+      "idx": 47,
+      "version": "7",
+      "when": 1782498913996,
+      "tag": "0047_core_rbac_reference_data",
+      "breakpoints": true
+    },
+    {
+      "idx": 48,
+      "version": "7",
+      "when": 1782498913997,
+      "tag": "0048_operational_audit_categories",
+      "breakpoints": true
+    },
+    {
+      "idx": 49,
+      "version": "7",
+      "when": 1782498913998,
+      "tag": "0049_queue_dead_letter",
+      "breakpoints": true
+    },
+    {
+      "idx": 50,
+      "version": "7",
+      "when": 1782498913999,
+      "tag": "0050_commerce_funnel_analytics",
+      "breakpoints": true
+    },
+    {
+      "idx": 51,
+      "version": "7",
+      "when": 1782498914000,
+      "tag": "0051_hybrid_rental_billing",
+      "breakpoints": true
+    },
+    {
+      "idx": 52,
+      "version": "7",
+      "when": 1782498914001,
+      "tag": "0052_ad_event_attribution_and_dedup",
+      "breakpoints": true
+    },
+    {
+      "idx": 53,
+      "version": "7",
+      "when": 1782498914002,
+      "tag": "0053_ad_budget_pacing_ledger",
+      "breakpoints": true
+    },
+    {
+      "idx": 54,
+      "version": "7",
+      "when": 1782498914003,
+      "tag": "0054_ad_order_conversion_attribution",
+      "breakpoints": true
+    },
+    {
+      "idx": 55,
+      "version": "7",
+      "when": 1782498914004,
+      "tag": "0055_admin_finance_cms_erp_tenant_governance",
+      "breakpoints": true
+    },
+    {
+      "idx": 56,
+      "version": "7",
+      "when": 1782498914005,
+      "tag": "0056_product_catalog_lifecycle_inventory_import",
+      "breakpoints": true
+    },
+    {
+      "idx": 57,
+      "version": "7",
+      "when": 1782498914006,
+      "tag": "0057_employee_management_granular_permissions",
+      "breakpoints": true
+    },
+    {
+      "idx": 58,
+      "version": "7",
+      "when": 1782498914007,
+      "tag": "0058_permission_operation_coverage",
+      "breakpoints": true
+    },
+    {
+      "idx": 59,
+      "version": "7",
+      "when": 1782498914008,
+      "tag": "0059_product_os_cost_transfers_batches_review_moderation",
+      "breakpoints": true
+    },
+    {
+      "idx": 60,
+      "version": "7",
+      "when": 1782498914009,
+      "tag": "0060_scheduled_financial_reports",
+      "breakpoints": true
+    },
+    {
+      "idx": 61,
+      "version": "7",
+      "when": 1782498914010,
+      "tag": "0061_operational_drills_and_release_evidence",
+      "breakpoints": true
+    },
+    {
+      "idx": 62,
+      "version": "7",
+      "when": 1782498914011,
+      "tag": "0062_incomplete_store_deletion_permission",
+      "breakpoints": true
+    },
+    {
+      "idx": 63,
+      "version": "7",
+      "when": 1782498914012,
+      "tag": "0063_audit_log_correlation_id",
+      "breakpoints": true
+    },
+    {
+      "idx": 64,
+      "version": "7",
+      "when": 1782498914013,
+      "tag": "0064_erp_conflict_case_management",
+      "breakpoints": true
+    },
+    {
+      "idx": 65,
+      "version": "7",
+      "when": 1784034000000,
+      "tag": "0065_ads_financial_marketplace_completion",
+      "breakpoints": true
+    },
+    {
+      "idx": 66,
+      "version": "7",
+      "when": 1784043000000,
+      "tag": "0066_platform_revenue_terms_sales_reports_consolidated_statements",
+      "breakpoints": true
+    },
+    {
+      "idx": 67,
+      "version": "7",
+      "when": 1784046600000,
+      "tag": "0067_generic_erp_onboarding_requests_connector_catalog",
+      "breakpoints": true
+    },
+    {
+      "idx": 68,
+      "version": "7",
+      "when": 1784050200000,
+      "tag": "0068_store_onboarding_document_workflow_launch_gate_pdf_archives",
+      "breakpoints": true
+    },
+    {
+      "idx": 69,
+      "version": "7",
+      "when": 1784053800000,
+      "tag": "0069_contract_addendums_identity_change_requests_and_archives",
+      "breakpoints": true
+    },
+    {
+      "idx": 70,
+      "version": "7",
+      "when": 1784057400000,
+      "tag": "0070_ai_action_proposals_human_approval",
+      "breakpoints": true
+    },
+    {
+      "idx": 71,
+      "version": "7",
+      "when": 1785340800000,
+      "tag": "0071_dynamic_homepage_exposure_revenue_engine",
+      "breakpoints": true
+    },
+    {
+      "idx": 72,
+      "version": "7",
+      "when": 1785344400000,
+      "tag": "0072_home_exposure_requests_manual_activation",
+      "breakpoints": true
+    },
+    {
+      "idx": 73,
+      "version": "7",
+      "when": 1785348000000,
+      "tag": "0073_home_exposure_admin_final_schedule",
+      "breakpoints": true
+    },
+    {
+      "idx": 74,
+      "version": "7",
+      "when": 1785351600000,
+      "tag": "0074_home_exposure_financial_checkpoint",
+      "breakpoints": true
+    },
+    {
+      "idx": 75,
+      "version": "7",
+      "when": 1785355200000,
+      "tag": "0075_independent_multi_store_activity_onboarding",
+      "breakpoints": true
+    },
+    {
+      "idx": 76,
+      "version": "7",
+      "when": 1785358800000,
+      "tag": "0076_branch_platform_revenue_contract_addendum",
+      "breakpoints": true
+    },
+    {
+      "idx": 77,
+      "version": "7",
+      "when": 1785362400000,
+      "tag": "0077_master_governance_versions_and_boundaries",
+      "breakpoints": true
+    },
+    {
+      "idx": 78,
+      "version": "7",
+      "when": 1785366000000,
+      "tag": "0078_admin_experience_preview_sessions",
+      "breakpoints": true
+    },
+    {
+      "idx": 79,
+      "version": "7",
+      "when": 1785369600000,
+      "tag": "0079_admin_managed_activity_template_catalog",
+      "breakpoints": true
+    },
+    {
+      "idx": 80,
+      "version": "7",
+      "when": 1785373200000,
+      "tag": "0080_onboarding_activity_template_scope",
+      "breakpoints": true
+    },
+    {
+      "idx": 81,
+      "version": "7",
+      "when": 1785376800000,
+      "tag": "0081_wing_is_single_activity_sector",
+      "breakpoints": true
+    },
+    {
+      "idx": 82,
+      "version": "7",
+      "when": 1785380400000,
+      "tag": "0082_offer_inventory_products_publication_lifecycle",
+      "breakpoints": true
+    },
+    {
+      "idx": 83,
+      "version": "7",
+      "when": 1785384000000,
+      "tag": "0083_ads_delivery_quality_and_fraud_credits",
+      "breakpoints": true
+    },
+    {
+      "idx": 84,
+      "version": "7",
+      "when": 1785387600000,
+      "tag": "0084_prelaunch_sensitive_control_and_qa_identity",
+      "breakpoints": true
+    },
+    {
+      "idx": 85,
+      "version": "7",
+      "when": 1785391200000,
+      "tag": "0085_store_offer_publication_schema_repair",
+      "breakpoints": true
+    },
+    {
+      "idx": 86,
+      "version": "7",
+      "when": 1785394800000,
+      "tag": "0086_platform_text_center_versioned_catalog",
+      "breakpoints": true
+    },
+    {
+      "idx": 87,
+      "version": "7",
+      "when": 1785398400000,
+      "tag": "0087_backup_recovery_target_authorization",
+      "breakpoints": true
+    },
+    {
+      "idx": 88,
+      "version": "7",
+      "when": 1785402000000,
+      "tag": "0088_qa_test_runs_evidence_registry",
+      "breakpoints": true
+    }
+  ]
+}

@@ -1,0 +1,70 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master, staging]
+  pull_request:
+    branches: [main, master, staging]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      JWT_SECRET: ci-only-7cf2a5368e9848db92f3b51d04cf9f0f-rotate-in-real-env
+      SESSION_COOKIE_NAME: mall_session
+      NEXT_PUBLIC_APP_URL: http://localhost:3000
+      NEXT_IMAGE_REMOTE_HOSTS: res.cloudinary.com
+      MEDIA_PROVIDER: local
+    steps:
+      - name: Checkout full history for secret verification
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.19.0
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Safe paths check
+        run: npm run check:paths
+
+      - name: Import path case check
+        run: npm run check:import-case
+
+      - name: Client/server import boundary check
+        run: npm run check:client-boundaries
+
+      - name: Release package completeness check
+        run: npm run release:package-verify
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Drizzle migration journal check
+        run: npm run migrations:verify
+
+      - name: Drizzle schema check
+        run: npx drizzle-kit check --config=drizzle.config.ts
+
+      - name: Secret verification (HEAD and Git history)
+        run: npm run security:secrets
+
+      - name: Unit tests
+        run: npm run test
+
+      - name: Build
+        run: npm run build
+
+      - name: Bundle budget report
+        run: npm run performance:bundle
+
+      - name: Audit high severity only
+        run: npm audit --audit-level=high

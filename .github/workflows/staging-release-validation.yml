@@ -1,0 +1,176 @@
+name: Staging release validation and evidence
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirmation:
+        description: Type RUN_STAGING_RELEASE_VALIDATION to test the isolated Staging URL only
+        required: true
+        type: string
+      run_full_cycle:
+        description: Run the write-enabled Staging full-cycle smoke against the dedicated Staging database
+        required: true
+        default: false
+        type: boolean
+      run_load_probe:
+        description: Run the non-destructive public HTTP load probe against Staging
+        required: true
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+
+concurrency:
+  group: staging-release-validation
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    if: inputs.confirmation == 'RUN_STAGING_RELEASE_VALIDATION'
+    runs-on: ubuntu-latest
+    environment: staging
+    env:
+      # Direct/Unpooled URL is used only by the optional database full-cycle test.
+      # The deployed Staging application itself must use its separate pooled URL.
+      DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
+      JWT_SECRET: ${{ secrets.STAGING_JWT_SECRET }}
+      APP_ENV: staging
+      NEXT_PUBLIC_APP_ENV: staging
+      NEXT_PUBLIC_APP_URL: ${{ vars.STAGING_APP_URL }}
+      PLAYWRIGHT_BASE_URL: ${{ vars.STAGING_APP_URL }}
+      LIGHTHOUSE_BASE_URL: ${{ vars.STAGING_APP_URL }}
+      E2E_BASE_URL: ${{ vars.STAGING_APP_URL }}
+      BASE_URL: ${{ vars.STAGING_APP_URL }}
+      ENVIRONMENT_ISOLATION_ENFORCED: 'true'
+      RUNTIME_ENVIRONMENT: staging
+      RESOURCE_NAMESPACE: 'mall-os:staging'
+      REDIS_KEY_PREFIX: 'mall-os:staging:'
+      ENVIRONMENT_PUBLIC_HOST: ${{ vars.STAGING_APP_HOST }}
+      CLOUDINARY_FOLDER: staging
+      PRIVATE_DOCUMENTS_R2_BUCKET: ${{ vars.STAGING_PRIVATE_DOCUMENTS_R2_BUCKET }}
+      PRIVATE_DOCUMENTS_R2_PREFIX: staging/legal-documents
+      BACKUP_S3_BUCKET: ${{ vars.STAGING_BACKUP_BUCKET }}
+      BACKUP_S3_PREFIX: staging/database
+      PAYMENT_ENVIRONMENT: sandbox
+      ERP_ENVIRONMENT: sandbox
+      OUTBOUND_DELIVERY_MODE: sandbox
+      PLAYWRIGHT_A11Y_AUDIT: 'true'
+      E2E_ALLOW_STAGING_WRITE: ${{ inputs.run_full_cycle && 'true' || 'false' }}
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js 22 for Vercel-equivalent validation
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.19.0
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Source, security, migration and environment-isolation gate
+        run: |
+          npm run check:paths
+          npm run check:import-case
+          npm run lint
+          npm run typecheck
+          npm test
+          npm run migrations:verify
+          npx drizzle-kit check --config=drizzle.config.ts
+          npm run security:verify
+          npm audit --audit-level=high
+          npm run environment:verify -- --expected=staging --strict
+          npm run build
+          npm run performance:bundle
+
+      - name: Install Chromium for Staging browser validation
+        run: npx playwright install --with-deps chromium
+
+      - name: Playwright public UX and Axe accessibility gate
+        id: playwright
+        continue-on-error: true
+        run: npm run test:e2e:playwright
+
+      - name: Lighthouse quality gate
+        id: lighthouse
+        continue-on-error: true
+        run: npm run test:staging:lighthouse
+
+      - name: Optional isolated database full-cycle smoke
+        id: full_cycle
+        if: inputs.run_full_cycle
+        continue-on-error: true
+        run: npm run test:e2e:platform
+
+      - name: Optional Staging public load probe
+        id: load_probe
+        if: inputs.run_load_probe
+        continue-on-error: true
+        run: |
+          mkdir -p artifacts/load
+          npm run load:probe | tee artifacts/load/staging-http-probe.json
+
+      - name: Write Staging release evidence manifest
+        if: always()
+        env:
+          PLAYWRIGHT_OUTCOME: ${{ steps.playwright.outcome }}
+          LIGHTHOUSE_OUTCOME: ${{ steps.lighthouse.outcome }}
+          FULL_CYCLE_OUTCOME: ${{ steps.full_cycle.outcome }}
+          LOAD_PROBE_OUTCOME: ${{ steps.load_probe.outcome }}
+          RUN_FULL_CYCLE: ${{ inputs.run_full_cycle }}
+          RUN_LOAD_PROBE: ${{ inputs.run_load_probe }}
+        run: |
+          mkdir -p artifacts/release-evidence
+          cat > artifacts/release-evidence/staging-release-evidence.json <<EOF
+          {
+            "environment": "staging",
+            "commit": "${GITHUB_SHA}",
+            "workflowRun": "${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}",
+            "generatedAt": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "checks": {
+              "playwrightAndAxe": "${PLAYWRIGHT_OUTCOME}",
+              "lighthouse": "${LIGHTHOUSE_OUTCOME}",
+              "fullCycle": "${FULL_CYCLE_OUTCOME:-skipped}",
+              "loadProbe": "${LOAD_PROBE_OUTCOME:-skipped}"
+            },
+            "requested": {
+              "fullCycle": "${RUN_FULL_CYCLE}",
+              "loadProbe": "${RUN_LOAD_PROBE}"
+            },
+            "note": "This artifact is Staging evidence only. It never authorizes Production deployment by itself."
+          }
+          EOF
+          cat artifacts/release-evidence/staging-release-evidence.json
+
+      - name: Upload browser, accessibility, Lighthouse, load and release evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: staging-release-evidence-${{ github.run_number }}
+          if-no-files-found: warn
+          retention-days: 30
+          path: |
+            playwright-report/
+            test-results/
+            artifacts/lighthouse/
+            artifacts/load/
+            artifacts/release-evidence/
+
+      - name: Enforce Staging browser-quality gate
+        if: always()
+        env:
+          PLAYWRIGHT_OUTCOME: ${{ steps.playwright.outcome }}
+          LIGHTHOUSE_OUTCOME: ${{ steps.lighthouse.outcome }}
+          FULL_CYCLE_OUTCOME: ${{ steps.full_cycle.outcome }}
+          LOAD_PROBE_OUTCOME: ${{ steps.load_probe.outcome }}
+          RUN_FULL_CYCLE: ${{ inputs.run_full_cycle }}
+          RUN_LOAD_PROBE: ${{ inputs.run_load_probe }}
+        run: |
+          test "${PLAYWRIGHT_OUTCOME}" = "success"
+          test "${LIGHTHOUSE_OUTCOME}" = "success"
+          if [ "${RUN_FULL_CYCLE}" = "true" ]; then test "${FULL_CYCLE_OUTCOME}" = "success"; fi
+          if [ "${RUN_LOAD_PROBE}" = "true" ]; then test "${LOAD_PROBE_OUTCOME}" = "success"; fi

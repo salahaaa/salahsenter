@@ -1,0 +1,6 @@
+"use client";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { apiClient, ApiClientError } from "@/lib/client/api-client";
+export function MerchantApplicationArchiveActions({applicationId,kind,status}:{applicationId:string;kind:"signed_contract_pdf"|"documents_manifest_pdf";status:string}){const router=useRouter();const [loading,setLoading]=useState(false);const [message,setMessage]=useState<string|null>(null);async function regenerate(){setLoading(true);setMessage(null);try{const data=await apiClient.post<any>(`/api/admin/merchant-applications/${applicationId}/archives/${kind}`,{}, {invalidateTags:[`application:${applicationId}`]});setMessage(data.message||"تم إنشاء PDF");router.refresh()}catch(caught){setMessage(caught instanceof ApiClientError?caught.message:"تعذر إنشاء الأرشيف")}finally{setLoading(false)}}return <div className="mt-2 flex items-center gap-2"><Button size="sm" variant="outline" disabled={loading} onClick={()=>void regenerate()}>{loading?"جارٍ الإنشاء...":status==="ready"?"إعادة توليد PDF":"إعادة محاولة PDF"}</Button>{message?<span className="text-xs font-bold text-slate-600">{message}</span>:null}</div>}

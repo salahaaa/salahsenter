@@ -1,0 +1,29 @@
+"use client";
+
+import { useState, type FormEvent } from "react";
+import { useRouter } from "next/navigation";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+
+type CertificationRow = { certification: any; clientName: string; clientKey: string; storeName: string | null };
+type Client = { id: string; name: string; clientKey: string };
+type Store = { id: string; name: string };
+
+export function ErpCertificationPanel({ certifications, clients, stores }: { certifications: CertificationRow[]; clients: Client[]; stores: Store[] }) {
+  const router = useRouter();
+  const [message, setMessage] = useState<string | null>(null);
+  const [loading, setLoading] = useState<string | null>(null);
+  async function request(method: "POST" | "PATCH", body: Record<string, unknown>, key: string) {
+    setLoading(key);
+    const response = await fetch("/api/admin/integrations/certifications", { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    const json = await response.json().catch(() => ({}));
+    setLoading(null);
+    setMessage(response.ok ? `✓ ${json.data?.message || "تم تحديث الشهادة"}` : json.message || "تعذر تحديث الشهادة");
+    if (response.ok) router.refresh();
+  }
+  function submit(event: FormEvent<HTMLFormElement>) { event.preventDefault(); const form = new FormData(event.currentTarget); void request("POST", { clientId: form.get("clientId"), storeId: form.get("storeId") || null, note: form.get("note") || null }, "create"); }
+  async function enableStore(certification: any) { if (!certification.storeId) return setMessage("حدد متجرًا تجريبيًا في الشهادة أولًا"); setLoading(`${certification.id}:enable`); const response = await fetch(`/api/admin/stores/${certification.storeId}/erp-mode`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ mode: "ERP", certificationId: certification.id }) }); const json = await response.json().catch(() => ({})); setLoading(null); setMessage(response.ok ? "✓ تم فتح ERP Mode للمحل. استخدم بيانات Agent Onboarding من سجل التدقيق/واجهة API الآمنة." : json.message || "تعذر فتح ERP للمحل"); if (response.ok) router.refresh(); }
+  return <div className="space-y-8"><section className="rounded-[2rem] border bg-white p-6 shadow-card"><h2 className="text-xl font-black">فحص جاهزية موصل ERP</h2><p className="mt-1 text-sm text-slate-500">يفحص الـ client والـ agent والـ mappings وسياسات التعارض وآخر مزامنة قبل sandbox/certification.</p><form onSubmit={submit} className="mt-5 grid gap-3 md:grid-cols-3"><label className="space-y-2"><Label>Integration Client</Label><select name="clientId" required className="h-11 w-full rounded-xl border bg-white px-3 text-sm"><option value="">اختر client</option>{clients.map((client) => <option key={client.id} value={client.id}>{client.name} — {client.clientKey}</option>)}</select></label><label className="space-y-2"><Label>متجر تجريبي</Label><select name="storeId" className="h-11 w-full rounded-xl border bg-white px-3 text-sm"><option value="">اختياري</option>{stores.map((store) => <option key={store.id} value={store.id}>{store.name}</option>)}</select></label><label className="space-y-2"><Label>ملاحظة</Label><Input name="note" /></label><Button disabled={loading === "create"} className="md:col-span-3">{loading === "create" ? "جارٍ الفحص..." : "فحص الجاهزية"}</Button></form></section>{message ? <p className="rounded-2xl border bg-white p-4 text-sm font-bold text-slate-700">{message}</p> : null}<section className="space-y-3">{certifications.map((row) => { const checks = row.certification.checklist || {}; const passed = Object.values(checks).filter(Boolean).length; const total = Object.keys(checks).length; return <article key={row.certification.id} className="rounded-[2rem] border bg-white p-5 shadow-card"><div className="flex flex-wrap justify-between gap-4"><div><div className="flex gap-2"><Badge variant={row.certification.status === "certified" ? "success" : row.certification.status === "rejected" ? "danger" : "warning"}>{row.certification.status}</Badge><Badge variant="outline">{passed}/{total} checks</Badge></div><h3 className="mt-2 font-black">{row.clientName} — {row.clientKey}</h3><p className="mt-1 text-sm text-slate-500">{row.storeName || "بدون متجر تجريبي محدد"}</p></div><div className="flex flex-wrap gap-2"><Button size="sm" variant="outline" disabled={loading === `${row.certification.id}:recheck`} onClick={() => void request("PATCH", { id: row.certification.id, action: "recheck" }, `${row.certification.id}:recheck`)}>إعادة فحص</Button><Button size="sm" disabled={passed !== total || loading === `${row.certification.id}:certify`} onClick={() => void request("PATCH", { id: row.certification.id, action: "certify" }, `${row.certification.id}:certify`)}>اعتماد Sandbox</Button>{row.certification.status === "certified" && row.certification.storeId ? <Button size="sm" variant="outline" disabled={loading === `${row.certification.id}:enable`} onClick={() => void enableStore(row.certification)}>فتح للمحل</Button> : null}<Button size="sm" variant="destructive" disabled={loading === `${row.certification.id}:reject`} onClick={() => void request("PATCH", { id: row.certification.id, action: "reject", note: "يحتاج استكمال متطلبات الشهادة" }, `${row.certification.id}:reject`)}>رفض</Button></div></div><div className="mt-4 grid gap-2 md:grid-cols-3">{Object.entries(checks).map(([key, value]) => <div key={key} className={`rounded-xl p-2 text-xs font-bold ${value ? "bg-emerald-50 text-emerald-800" : "bg-red-50 text-red-800"}`}>{value ? "✓" : "✕"} {key}</div>)}</div></article>; })}{!certifications.length ? <p className="rounded-2xl bg-slate-50 p-5 text-sm font-bold text-slate-500">لا توجد شهادات ERP حتى الآن.</p> : null}</section></div>;
+}

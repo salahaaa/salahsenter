@@ -1,0 +1,35 @@
+{
+  "channel": "staging",
+  "sourceDirectories": [
+    ".github",
+    "app",
+    "assets",
+    "components",
+    "config",
+    "docs",
+    "drizzle",
+    "lib",
+    "local-sync-agent",
+    "scripts",
+    "services",
+    "tests",
+    "tools"
+  ],
+  "excludedRootFiles": [
+    ".env",
+    ".env.local",
+    ".env.production",
+    ".env.staging",
+    ".env.test"
+  ],
+  "requiredFiles": [
+    "package.json",
+    "package-lock.json",
+    ".nvmrc",
+    "config/release-package-manifest.json",
+    "scripts/verify-release-package.mjs",
+    "tools/Apply-Mall-Update.ps1",
+    "tools/Initialize-Mall-Update-Channel.ps1",
+    "tools/Verify-Mall-Project.ps1"
+  ]
+}

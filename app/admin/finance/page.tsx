@@ -1,0 +1,33 @@
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
+import Link from "next/link";
+import { desc, eq, sql } from "drizzle-orm";
+import { Landmark, ReceiptText, ShieldCheck } from "lucide-react";
+import { SiteHeader } from "@/components/layout/site-header";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { AdminPayoutActions } from "@/components/finance/admin-finance-actions";
+import { FinancialClosePanel } from "@/components/finance/financial-close-panel";
+import { requireAuth } from "@/lib/auth";
+import { assertAdminOperation } from "@/lib/rbac";
+import { db, financialCloseRuns, merchantFinancialAccounts, merchantLedgerEntries, merchantPayoutRequests, paymentReceipts, stores } from "@/lib/db";
+import { formatCurrency } from "@/lib/utils";
+import { customerMoneyMode } from "@/lib/platform-revenue/customer-money-policy";
+
+export default async function AdminFinancePage() {
+  const session = await requireAuth();
+  await assertAdminOperation(session, "finance.reports.view");
+  if (customerMoneyMode() === "merchant_collects") return <main className="min-h-screen admin-aurora"><SiteHeader /><section className="container py-8"><div className="mb-8 flex flex-wrap items-start justify-between gap-4"><div><h1 className="text-3xl font-black">مالية الطلبات وإيرادات المنصة</h1><p className="mt-2 text-sm text-slate-500">نموذج الإطلاق لا يجعل المنصة وسيطاً مالياً لمبيعات المتاجر.</p></div><Button asChild variant="outline"><Link href="/admin">العودة</Link></Button></div><section className="rounded-[2rem] border bg-white p-8 shadow-card"><div className="grid gap-5 md:grid-cols-[auto_1fr]"><div className="grid h-14 w-14 place-items-center rounded-2xl bg-emerald-50 text-emerald-700"><ShieldCheck className="h-7 w-7" /></div><div><h2 className="text-2xl font-black">العميل يدفع للتاجر مباشرة</h2><p className="mt-3 max-w-3xl text-sm leading-8 text-slate-600">لا تُنشأ أرصدة تجار أو طلبات سحب أو تسويات لمبيعات العملاء داخل المنصة. يستخدم التاجر حسابه البنكي أو محفظته وطرق دفعه الخاصة. إيراد المنصة فقط هو الإيجار والعمولة والإعلان، ويُدار من صفحة مستقلة.</p><div className="mt-5 flex flex-wrap gap-3"><Button asChild><Link href="/admin/platform-revenue"><ReceiptText className="h-4 w-4" /> إيرادات المنصة الموحدة</Link></Button><Button asChild variant="outline"><Link href="/admin/financial-providers"><Landmark className="h-4 w-4" /> مزودو دفع التجار</Link></Button></div></div></div></section></section></main>;
+  const [accounts, payouts, ledger, receiptStats, closeRuns] = await Promise.all([
+    db.select({ account: merchantFinancialAccounts, storeName: stores.name }).from(merchantFinancialAccounts).innerJoin(stores, eq(merchantFinancialAccounts.storeId, stores.id)).orderBy(desc(merchantFinancialAccounts.updatedAt)).limit(100),
+    db.select({ payout: merchantPayoutRequests, storeName: stores.name }).from(merchantPayoutRequests).innerJoin(stores, eq(merchantPayoutRequests.storeId, stores.id)).orderBy(desc(merchantPayoutRequests.createdAt)).limit(100),
+    db.select().from(merchantLedgerEntries).orderBy(desc(merchantLedgerEntries.createdAt)).limit(100),
+    db.select({ status: paymentReceipts.status, count: sql<number>`count(*)::int` }).from(paymentReceipts).groupBy(paymentReceipts.status),
+    db.select().from(financialCloseRuns).orderBy(desc(financialCloseRuns.periodEnd)).limit(30)
+  ]);
+  const totals = accounts.reduce((acc, row) => ({ available: acc.available + Number(row.account.availableBalance || 0), lifetime: acc.lifetime + Number(row.account.lifetimeEarnings || 0), payouts: acc.payouts + Number(row.account.lifetimePayouts || 0) }), { available: 0, lifetime: 0, payouts: 0 });
+  return <main className="min-h-screen admin-aurora"><SiteHeader /><section className="container py-8"><div className="mb-8 flex items-center justify-between"><div><h1 className="text-3xl font-black">لوحة المالية والتسويات</h1><p className="mt-2 text-sm text-slate-500">وضع تسوية المنصة استثنائي ومفعل بإدارة النظام فقط.</p></div><Button asChild variant="outline"><Link href="/admin">العودة</Link></Button></div><section className="grid gap-4 md:grid-cols-3"><Metric title="الرصيد المتاح للتجار" value={formatCurrency(totals.available)} /><Metric title="إجمالي مبيعات التجار" value={formatCurrency(totals.lifetime)} /><Metric title="إجمالي المسحوبات" value={formatCurrency(totals.payouts)} /></section><section className="mt-8 rounded-3xl border bg-white p-6 shadow-card"><h2 className="mb-4 text-xl font-black">طلبات السحب</h2>{!payouts.length ? <p className="text-sm text-slate-400">لا توجد طلبات</p> : <div className="overflow-x-auto"><table className="w-full min-w-[900px] text-right text-sm"><thead className="bg-slate-100"><tr><th className="p-3">المتجر</th><th className="p-3">المبلغ</th><th className="p-3">الحالة</th><th className="p-3">الطريقة</th><th className="p-3">تحكم</th></tr></thead><tbody>{payouts.map(({ payout, storeName }) => <tr key={payout.id} className="border-t"><td className="p-3 font-bold">{storeName}</td><td className="p-3">{formatCurrency(payout.amount, payout.currency)}</td><td className="p-3"><Badge variant={payout.status === "paid" ? "success" : payout.status === "rejected" ? "danger" : "warning"}>{payout.status}</Badge></td><td className="p-3">{payout.method}</td><td className="p-3"><AdminPayoutActions payoutId={payout.id} status={payout.status} /></td></tr>)}</tbody></table></div>}</section><FinancialClosePanel runs={JSON.parse(JSON.stringify(closeRuns))} /><section className="mt-8 grid gap-8 xl:grid-cols-2"><Panel title="حسابات التجار" rows={accounts.map((row) => [row.storeName, formatCurrency(row.account.availableBalance, row.account.currency), formatCurrency(row.account.lifetimeEarnings, row.account.currency)])} /><Panel title="إثباتات الدفع" rows={receiptStats.map((row) => [row.status, String(row.count)])} /></section></section></main>;
+}
+function Metric({ title, value }: { title: string; value: string }) { return <div className="rounded-3xl border bg-white p-5 shadow-card"><p className="text-sm font-bold text-slate-500">{title}</p><p className="mt-2 text-2xl font-black text-slate-950">{value}</p></div>; }
+function Panel({ title, rows }: { title: string; rows: string[][] }) { return <div className="rounded-3xl border bg-white p-5 shadow-card"><h2 className="mb-4 text-xl font-black">{title}</h2>{!rows.length ? <p className="text-sm text-slate-400">لا توجد بيانات</p> : <div className="space-y-2">{rows.map((row, index) => <div key={index} className="grid grid-cols-3 gap-2 rounded-xl bg-slate-50 p-3 text-xs font-bold">{row.map((cell, cellIndex) => <span key={cellIndex}>{cell}</span>)}</div>)}</div>}</div>; }

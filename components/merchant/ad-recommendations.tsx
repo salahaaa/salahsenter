@@ -1,0 +1,11 @@
+import { Badge } from "@/components/ui/badge";
+import { formatCurrency } from "@/lib/utils";
+
+type Item = { campaignId: string; campaignName: string; status: string; placementId: string; billingModel: string; recommendation: { state: string; recommendedBid: number; recommendedDailyBudget: number; confidence: string; reasons: string[]; guardrails: string[] } };
+
+const labels: Record<string, string> = { insufficient_data: "بيانات غير كافية", protect: "حماية الجودة", scale: "فرصة توسع", improve_relevance: "تحسين الصلة", maintain: "استمرار مراقب" };
+
+export function AdRecommendations({ items }: { items: Item[] }) {
+  if (!items.length) return null;
+  return <section className="mt-8 rounded-3xl border bg-white p-6 shadow-card"><div className="mb-4"><h2 className="text-xl font-black text-slate-950">توصيات bid والميزانية</h2><p className="mt-1 text-xs font-bold leading-6 text-slate-500">اقتراحات قابلة للتفسير بناءً على آخر 7 أيام من التقارير المجمعة. لا تُطبق تلقائياً ولا تعيد تفعيل الحملة.</p></div><div className="grid gap-3 lg:grid-cols-2">{items.map((item) => <article key={item.campaignId} className="rounded-2xl border bg-slate-50 p-4"><div className="flex flex-wrap items-start justify-between gap-2"><div><h3 className="font-black text-slate-950">{item.campaignName}</h3><p className="mt-1 text-xs font-bold text-slate-500">{item.placementId} · {item.billingModel.toUpperCase()}</p></div><Badge variant={item.recommendation.state === "scale" ? "success" : item.recommendation.state === "protect" ? "danger" : "outline"}>{labels[item.recommendation.state] || item.recommendation.state}</Badge></div><p className="mt-3 text-sm font-bold leading-6 text-slate-700">{item.recommendation.reasons.join(" ")}</p><div className="mt-3 grid grid-cols-2 gap-2 text-xs"><div className="rounded-xl bg-white p-3"><span className="text-slate-500">Bid مقترح</span><b className="mt-1 block text-slate-950">{formatCurrency(item.recommendation.recommendedBid)}</b></div><div className="rounded-xl bg-white p-3"><span className="text-slate-500">ميزانية يومية</span><b className="mt-1 block text-slate-950">{formatCurrency(item.recommendation.recommendedDailyBudget)}</b></div></div><p className="mt-3 text-xs font-bold text-slate-500">ثقة: {item.recommendation.confidence} · {item.recommendation.guardrails[0]}</p></article>)}</div></section>;
+}

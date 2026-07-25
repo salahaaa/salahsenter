@@ -1,0 +1,1 @@
+ALTER TABLE "merchant_applications" ADD COLUMN "contract_access_token_hash" text;

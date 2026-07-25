@@ -1,0 +1,50 @@
+name: Bootstrap first Staging platform administrator
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirmation:
+        description: Type BOOTSTRAP_FIRST_STAGING_ADMIN to create the first super_admin on Staging only
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: first-staging-platform-admin-bootstrap
+  cancel-in-progress: false
+
+jobs:
+  bootstrap:
+    if: inputs.confirmation == 'BOOTSTRAP_FIRST_STAGING_ADMIN'
+    runs-on: ubuntu-latest
+    environment: staging
+    env:
+      # Neon Direct / Unpooled URL for the isolated Staging database only.
+      DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
+      APP_ENV: staging
+      ADMIN_EMAIL: ${{ secrets.STAGING_ADMIN_BOOTSTRAP_EMAIL }}
+      ADMIN_NAME: ${{ secrets.STAGING_ADMIN_BOOTSTRAP_NAME }}
+      ADMIN_PASSWORD: ${{ secrets.STAGING_ADMIN_BOOTSTRAP_PASSWORD }}
+      ALLOW_ADMIN_BOOTSTRAP: 'true'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.19.0
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Confirm the committed schema history before first-admin bootstrap
+        run: npm run migrations:verify && npx drizzle-kit check --config=drizzle.config.ts
+
+      # This intentionally does not run migrations. Execute the separate
+      # Apply Staging database migrations workflow first, then bootstrap once.
+      - name: Create the first Staging super administrator exactly once
+        run: npm run admin:bootstrap

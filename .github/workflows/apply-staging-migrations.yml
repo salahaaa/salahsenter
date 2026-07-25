@@ -1,0 +1,44 @@
+name: Apply Staging database migrations
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirmation:
+        description: Type APPLY_STAGING_MIGRATIONS to apply the committed migration history to Staging only
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: staging-database-migrations
+  cancel-in-progress: false
+
+jobs:
+  migrate:
+    if: inputs.confirmation == 'APPLY_STAGING_MIGRATIONS'
+    runs-on: ubuntu-latest
+    environment: staging
+    env:
+      # Neon Direct / Unpooled URL for Staging migrations only. Never add it to source or Vercel.
+      DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
+      APP_ENV: staging
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.19.0
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Verify committed migration history
+        run: npm run migrations:verify && npx drizzle-kit check --config=drizzle.config.ts
+
+      - name: Apply the single Drizzle migration history to Staging
+        run: npm run db:migrate

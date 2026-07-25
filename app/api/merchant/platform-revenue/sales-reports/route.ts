@@ -1,0 +1,11 @@
+export const dynamic = "force-dynamic";
+import { z } from "zod";
+import { created, fail, handleApiError, ok } from "@/lib/api";
+import { hasStoreAccess, requireAuth } from "@/lib/auth";
+import { getMerchantPrimaryStore } from "@/lib/db/queries";
+import { getMerchantPlatformRevenue, submitMerchantSalesReport } from "@/lib/platform-revenue/service";
+import { Permission, userHasAnyStorePermission } from "@/lib/rbac";
+import { writeAuditLog } from "@/lib/audit";
+const schema = z.object({ periodStart: z.string().datetime(), periodEnd: z.string().datetime(), salesTotal: z.coerce.number().min(0), currency: z.string().trim().min(3).max(10).default("YER"), externalReference: z.string().trim().max(180).optional().nullable(), note: z.string().trim().max(1_500).optional().nullable() });
+export async function GET() { try { const session=await requireAuth(); const data=await getMerchantPlatformRevenue(session.userId); return ok({ reports:data.reports }); } catch(error){ return handleApiError(error,"تعذر تحميل تقارير المبيعات"); } }
+export async function POST(request: Request) { try { const session=await requireAuth(); const store=await getMerchantPrimaryStore(session.userId); if(!store || !hasStoreAccess(session,store.id)) return fail("لا يوجد متجر متاح لإرسال التقرير",403); if(!(await userHasAnyStorePermission(session.userId,store.id,["store.platform_revenue.sales_report.submit","store.finance.view",Permission.ViewStoreFinance]))) return fail("لا تملك صلاحية إرسال تقرير المبيعات",403); const payload=schema.parse(await request.json()); if(new Date(payload.periodEnd)<=new Date(payload.periodStart)) return fail("نهاية الفترة يجب أن تكون بعد البداية",422); const result=await submitMerchantSalesReport({storeId:store.id,merchantId:session.userId,periodStart:new Date(payload.periodStart),periodEnd:new Date(payload.periodEnd),salesTotal:payload.salesTotal,currency:payload.currency,externalReference:payload.externalReference,note:payload.note}); await writeAuditLog({actorId:session.userId,action:"create",category:"financial",entityType:"merchant_sales_report",entityId:result.report.id,beforeData:result.before,afterData:result.report}); return created({report:result.report,message:"تم إرسال تقرير المبيعات للمراجعة قبل احتساب العمولة"}); } catch(error){ return handleApiError(error,"تعذر إرسال تقرير المبيعات"); } }

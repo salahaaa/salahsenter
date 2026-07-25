@@ -1,0 +1,53 @@
+name: Provision isolated Staging test team
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirmation:
+        description: Type PROVISION_STAGING_TEST_TEAM to create or reconcile the isolated human test accounts on Staging only
+        required: true
+        type: string
+      reset_passwords:
+        description: Reset the temporary passwords and require a new password on next login (normally false)
+        required: true
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+
+concurrency:
+  group: staging-test-team-provisioning
+  cancel-in-progress: false
+
+jobs:
+  provision:
+    if: inputs.confirmation == 'PROVISION_STAGING_TEST_TEAM'
+    runs-on: ubuntu-latest
+    environment: staging
+    env:
+      # Neon Direct / Unpooled URL for isolated Staging writes only.
+      DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
+      APP_ENV: staging
+      QA_STAGING_TEAM_CONFIRM: PROVISION_STAGING_TEST_TEAM
+      STAGING_QA_TEAM_JSON: ${{ secrets.STAGING_QA_TEAM_JSON }}
+      STAGING_QA_RESET_PASSWORDS: ${{ inputs.reset_passwords && 'true' || 'false' }}
+      STAGING_QA_STORE_SLUG_PREFIX: qa-team
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.19.0
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Confirm migration history before Staging-only writes
+        run: npm run migrations:verify && npx drizzle-kit check --config=drizzle.config.ts
+
+      - name: Create separate QA identities, stores and least-privilege role profiles
+        run: npm run staging:test-team:provision

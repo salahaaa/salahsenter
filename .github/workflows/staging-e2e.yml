@@ -1,0 +1,57 @@
+name: Staging operational E2E
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirmation:
+        description: Type RUN_STAGING_E2E to permit writes to the isolated staging database
+        required: true
+        type: string
+      run_http:
+        description: Run HTTP regression after the staging app is available
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+
+concurrency:
+  group: staging-operational-e2e
+  cancel-in-progress: false
+
+jobs:
+  e2e:
+    if: github.event.inputs.confirmation == 'RUN_STAGING_E2E'
+    runs-on: ubuntu-latest
+    environment: staging
+    env:
+      DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
+      APP_ENV: staging
+      JWT_SECRET: ${{ secrets.STAGING_JWT_SECRET }}
+      E2E_ALLOW_STAGING_WRITE: 'true'
+      E2E_HTTP_CONFIRM: 'true'
+      E2E_BASE_URL: ${{ vars.STAGING_APP_URL }}
+      TEST_ADMIN_EMAIL: ${{ secrets.STAGING_ADMIN_EMAIL }}
+      TEST_ADMIN_PASSWORD: ${{ secrets.STAGING_ADMIN_PASSWORD }}
+      TEST_MERCHANT_EMAIL: ${{ secrets.STAGING_MERCHANT_EMAIL }}
+      TEST_MERCHANT_PASSWORD: ${{ secrets.STAGING_MERCHANT_PASSWORD }}
+      TEST_CUSTOMER_EMAIL: ${{ secrets.STAGING_CUSTOMER_EMAIL }}
+      TEST_CUSTOMER_PASSWORD: ${{ secrets.STAGING_CUSTOMER_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.19.0
+          cache: npm
+      - run: npm ci
+      - run: npm run migrations:verify
+      - run: npx drizzle-kit check --config=drizzle.config.ts
+      - run: npm run test:e2e:platform
+      - if: ${{ inputs.run_http }}
+        run: npm run test:e2e:http
+      - if: ${{ inputs.run_http }}
+        run: npx playwright install --with-deps chromium
+      - if: ${{ inputs.run_http }}
+        run: npm run test:e2e:playwright
+      - run: npm run reliability:verify

@@ -1,0 +1,40 @@
+name: Apply database migrations
+
+on:
+  workflow_dispatch:
+
+# A single migration history must be applied serially to production.
+concurrency:
+  group: production-database-migrations
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    environment: production
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.19.0
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Verify committed migration journal
+        run: npm run migrations:verify
+
+      - name: Verify schema migration metadata
+        run: npx drizzle-kit check --config=drizzle.config.ts
+
+      - name: Apply the single Drizzle migration history
+        run: npm run db:migrate

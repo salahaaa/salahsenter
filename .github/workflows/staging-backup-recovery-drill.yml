@@ -1,0 +1,93 @@
+name: Staging backup and isolated recovery drill
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirmation:
+        description: Type RUN_STAGING_BACKUP_RECOVERY_DRILL to create a Staging R2 backup and restore it only into the initialized recovery database
+        required: true
+        type: string
+      backup_file:
+        description: Optional existing backup filename. Leave empty to create and test a fresh Staging backup.
+        required: false
+        default: ""
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: staging-backup-recovery-drill
+  cancel-in-progress: false
+
+jobs:
+  drill:
+    if: inputs.confirmation == 'RUN_STAGING_BACKUP_RECOVERY_DRILL'
+    runs-on: ubuntu-latest
+    environment: staging
+    env:
+      # The source is the isolated Staging database. The recovery target has a
+      # separate direct URL and is never a Vercel runtime database.
+      DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
+      RECOVERY_TEST_DATABASE_URL: ${{ secrets.STAGING_RECOVERY_DATABASE_URL }}
+      APP_ENV: staging
+      NEXT_PUBLIC_APP_ENV: staging
+      RECOVERY_TEST_ENVIRONMENT: staging
+      RECOVERY_TARGET_LABEL: ${{ vars.STAGING_RECOVERY_TARGET_LABEL }}
+      BACKUP_STORAGE_PROVIDER: r2
+      BACKUP_S3_BUCKET: ${{ vars.STAGING_BACKUP_BUCKET }}
+      BACKUP_S3_ENDPOINT: ${{ vars.STAGING_BACKUP_R2_ENDPOINT }}
+      BACKUP_S3_REGION: auto
+      BACKUP_S3_ACCESS_KEY_ID: ${{ secrets.STAGING_BACKUP_R2_ACCESS_KEY_ID }}
+      BACKUP_S3_SECRET_ACCESS_KEY: ${{ secrets.STAGING_BACKUP_R2_SECRET_ACCESS_KEY }}
+      BACKUP_S3_PREFIX: staging/database
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.19.0
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Verify committed migration history
+        run: npm run migrations:verify && npx drizzle-kit check --config=drizzle.config.ts
+
+      - name: Apply migrations to the isolated recovery database only
+        env:
+          DATABASE_URL: ${{ secrets.STAGING_RECOVERY_DATABASE_URL }}
+        run: npm run db:migrate
+
+      - name: Explicitly initialize the recovery target marker
+        env:
+          RECOVERY_TARGET_INITIALIZE_CONFIRM: INITIALIZE_STAGING_RECOVERY_TARGET
+        run: npm run backup:recovery:init-target
+
+      - name: Create a fresh immutable-checksummed backup unless a file was selected
+        id: create_backup
+        if: inputs.backup_file == ''
+        run: |
+          mkdir -p artifacts/backup-recovery
+          npx tsx scripts/backup/create-json-backup.ts | tee artifacts/backup-recovery/backup-created.json
+          node -e "const fs=require('fs'); const x=JSON.parse(fs.readFileSync('artifacts/backup-recovery/backup-created.json','utf8')); if (!x.fileName) throw new Error('Backup filename missing'); fs.appendFileSync(process.env.GITHUB_OUTPUT, 'file_name='+x.fileName+'\n');"
+
+      - name: Restore into the authorized recovery target and verify every table count
+        env:
+          BACKUP_FILE: ${{ inputs.backup_file || steps.create_backup.outputs.file_name }}
+          RECOVERY_TEST_CONFIRM: 'true'
+          RECOVERY_RECORD_RELEASE_EVIDENCE: 'true'
+          RECOVERY_EVIDENCE_OUTPUT: artifacts/backup-recovery/recovery-evidence.json
+        run: npm run backup:recovery-test
+
+      - name: Upload R2 integrity and recovery evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: staging-backup-recovery-evidence-${{ github.run_number }}
+          retention-days: 30
+          if-no-files-found: warn
+          path: artifacts/backup-recovery/
