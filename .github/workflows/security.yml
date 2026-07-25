@@ -2,10 +2,16 @@ name: Security Pipeline
 
 on:
   push:
-    branches: [main, master, staging]
+    branches:
+      - main
+      - master
+      - staging
 
   pull_request:
-    branches: [main, master, staging]
+    branches:
+      - main
+      - master
+      - staging
 
   schedule:
     - cron: "17 2 * * 1"
@@ -63,7 +69,6 @@ jobs:
       contents: read
       pull-requests: read
 
-
     steps:
 
       - name: Review dependency changes
@@ -77,33 +82,28 @@ jobs:
 
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
 
-
     runs-on: ubuntu-latest
-
 
     permissions:
       contents: read
+      actions: read
       security-events: write
 
-
     steps:
-
 
       - name: Checkout repository
         uses: actions/checkout@v4
 
 
-
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v4
-
         with:
           languages: javascript-typescript
-
+          build-mode: none
 
 
       - name: Autobuild
-         uses: github/codeql-action/autobuild@v4
+        uses: github/codeql-action/autobuild@v4
 
 
       - name: Analyze CodeQL
