@@ -24,9 +24,7 @@ permissions:
   security-events: write
 
 
-jobs:
-
-  dependency-and-secret-scan:
+jobs:  dependency-and-secret-scan:
 
     name: Dependency and Secret Scan
 
@@ -37,8 +35,10 @@ jobs:
 
     steps:
 
-      - name: Checkout repository
+      - name: Checkout repository (full history)
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
 
       - name: Setup Node.js
@@ -54,8 +54,6 @@ jobs:
 
       - name: Run security verification
         run: npm run security:verify
-
-
 
   dependency-review:
 
