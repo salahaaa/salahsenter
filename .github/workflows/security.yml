@@ -24,7 +24,9 @@ permissions:
   security-events: write
 
 
-jobs:  dependency-and-secret-scan:
+jobs:
+
+  dependency-and-secret-scan:
 
     name: Dependency and Secret Scan
 
@@ -54,6 +56,8 @@ jobs:  dependency-and-secret-scan:
 
       - name: Run security verification
         run: npm run security:verify
+
+
 
   dependency-review:
 
