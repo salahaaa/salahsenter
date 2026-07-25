@@ -9,15 +9,21 @@ on:
     - cron: "17 2 * * 1"
   workflow_dispatch:
 
-# Read-only by default. Jobs request write capability only where required.
+# Default permissions required by security workflows.
+# CodeQL needs access to Actions API and upload access to security events.
 permissions:
   contents: read
+  actions: read
+  security-events: write
 
 jobs:
+
   dependency-and-secret-scan:
     runs-on: ubuntu-latest
+
     permissions:
       contents: read
+
     steps:
       - name: Checkout full history
         uses: actions/checkout@v4
@@ -39,7 +45,9 @@ jobs:
 
   dependency-review:
     if: github.event_name == 'pull_request'
+
     runs-on: ubuntu-latest
+
     permissions:
       contents: read
       pull-requests: read
@@ -49,10 +57,11 @@ jobs:
         uses: actions/dependency-review-action@v4
 
 
-  # CodeQL requires actions: read to query workflow run information.
-  # Fork pull requests are skipped because GitHub restricts write permissions.
+  # CodeQL analysis.
+  # Fork pull requests are skipped because GitHub restricts security permissions.
   codeql:
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
+
     runs-on: ubuntu-latest
 
     permissions:
@@ -61,14 +70,17 @@ jobs:
       security-events: write
 
     steps:
+
       - name: Checkout
         uses: actions/checkout@v4
+
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v4
         with:
           languages: javascript-typescript
           build-mode: none
+
 
       - name: Analyze
         uses: github/codeql-action/analyze@v4
