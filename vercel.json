@@ -10,54 +10,6 @@
     {
       "path": "/api/cron/contracts/check-expiry",
       "schedule": "0 5 * * *"
-    },
-    {
-      "path": "/api/cron/security/health",
-      "schedule": "0 1 * * *"
-    },
-    {
-      "path": "/api/cron/scaling/evaluate",
-      "schedule": "0 2 * * *"
-    },
-    {
-      "path": "/api/cron/integrations/retry?limit=25",
-      "schedule": "0 3 * * *"
-    },
-    {
-      "path": "/api/cron/reservations/expire?limit=50",
-      "schedule": "0 4 * * *"
-    },
-    {
-      "path": "/api/cron/backups/run",
-      "schedule": "0 6 * * *"
-    },
-    {
-      "path": "/api/cron/rentals/run?limit=100",
-      "schedule": "0 7 * * *"
-    },
-    {
-      "path": "/api/cron/platform-revenue/run?limit=250",
-      "schedule": "30 7 * * *"
-    },
-    {
-      "path": "/api/cron/ads/pacing?limit=100",
-      "schedule": "0 8 * * *"
-    },
-    {
-      "path": "/api/cron/ads/billing?limit=100",
-      "schedule": "20 8 * * *"
-    },
-    {
-      "path": "/api/cron/products/publication?limit=200",
-      "schedule": "0 9 * * *"
-    },
-    {
-      "path": "/api/cron/finance/close",
-      "schedule": "0 10 * * *"
-    },
-    {
-      "path": "/api/cron/reports/scheduled?limit=25",
-      "schedule": "0 11 * * *"
     }
   ]
 }

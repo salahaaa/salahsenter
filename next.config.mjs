@@ -19,6 +19,9 @@ if (process.env.NODE_ENV === "production") {
 
 const nextConfig = {
   reactStrictMode: true,
+  experimental: {
+    webpackMemoryOptimizations: true
+  },
   serverExternalPackages: ["postgres"],
   images: {
     remotePatterns: imageHostnames.map((hostname) => ({ protocol: "https", hostname })),
