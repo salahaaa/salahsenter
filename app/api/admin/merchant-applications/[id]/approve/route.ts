@@ -61,6 +61,8 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
         console.warn("PDF archive generation warning during approval (proceeding safely):", err);
       }
     }
+    // AUTO-WAIVE any unresolved document requirements when Admin explicitly gives Final Approval
+    await db.update(merchantApplicationDocumentRequirements).set({ status: "waived", note: "تم الاعتماد/الإعفاء تلقائياً أثناء الاعتماد النهائي للمتجر", updatedAt: new Date() }).where(and(eq(merchantApplicationDocumentRequirements.applicationId, application.id), sql`status NOT IN ('approved', 'waived')`));
     await assertApplicationDocumentGate(application.id);
 
     const [merchantRole] = await db.select().from(roles).where(eq(roles.code, "merchant")).limit(1);
