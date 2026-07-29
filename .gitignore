@@ -25,3 +25,4 @@ public/uploads
 .env.staging
 .env.test
 uploads/
+private-documents/
