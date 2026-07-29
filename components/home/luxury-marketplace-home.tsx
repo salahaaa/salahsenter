@@ -115,20 +115,24 @@ function HomeSectionRenderer({ section, context }: { section: HomeSection; conte
           {(context.visibilityRules.sections || defaultHomeVisibilityRules.sections).smartMallShortcuts ? <SmartMallExperience wings={context.wings} stores={context.smartMallStores} products={context.smartMallProducts} offers={context.smartMallOffers} /> : null}
         </>
       );
+    case "promo":
     case "promo_banners":
       return <><HomeExposureSlot placement="homepage_promo" cards={context.homeExposures.homepage_promo as any} label="عروض وبنرات مجدولة" /><PromoCarousel promos={context.promoSlides} primaryButton={context.content.promoPrimaryButton} secondaryButton={context.content.promoSecondaryButton} /></>;
     case "seasonal_offers":
       return <><HomeExposureSlot placement="homepage_today_offers" cards={context.homeExposures.homepage_today_offers as any} label="عروض اليوم" /><HomeExposureSlot placement="homepage_weekend_offers" cards={context.homeExposures.homepage_weekend_offers as any} label="عروض نهاية الأسبوع" /><HomeExposureSlot placement="homepage_seasonal_offers" cards={context.homeExposures.homepage_seasonal_offers as any} label="عروض موسمية" /><SeasonalOffersWindow title={section.title || "العروض"} offers={context.data.seasonalOffers || []} /></>;
     case "featured_stores":
       return <><HomeExposureSlot placement="homepage_featured_stores" cards={context.homeExposures.homepage_featured_stores as any} label="متاجر مميزة ممولة" /><FeaturedStores stores={context.featuredStores} marqueeStores={context.marqueeStores} title={section.title || "المتاجر المميزة"} content={context.content} /></>;
+    case "wings":
     case "featured_wings":
       return <><HomeExposureSlot placement="homepage_featured_wings" cards={context.homeExposures.homepage_featured_wings as any} label="أجنحة وأقسام ممولة" /><WingsDiscovery wings={context.wings} title={section.title || "استكشف أجنحة المول"} content={context.content} visibilityRules={context.visibilityRules} /></>;
     case "marketplace_ads":
       return <><HomeExposureSlot placement="homepage_marketplace_ads" cards={context.homeExposures.homepage_marketplace_ads as any} label="مساحة إعلانات المول" /><MarketplaceAdsSection announcements={context.data.marketplaceAnnouncements || []} title={section.title || "إعلانات المول العامة"} /></>;
     case "promoted_offers":
       return <><HomeExposureSlot placement="homepage_promoted_offers" cards={context.homeExposures.homepage_promoted_offers as any} label="عروض مميزة ممولة" /><HomeExposureSlot placement="homepage_sponsored_products" cards={context.homeExposures.homepage_sponsored_products as any} label="منتجات ممولة" /><SponsoredProductsShowcase products={context.data.sponsoredProducts || []} /><ProductShowcase title={section.title || "عروض مميزة"} products={context.data.promotedOffers || []} emptyText="لا توجد عروض ممولة حالياً" content={context.content} /></>;
+    case "products":
     case "trending_products":
       return <><HomeExposureSlot placement="homepage_featured_products" cards={context.homeExposures.homepage_featured_products as any} label="منتجات مميزة ممولة" /><HomeExposureSlot placement="homepage_trending_products" cards={context.homeExposures.homepage_trending_products as any} label="منتجات رائجة ممولة" /><ProductShowcase title={section.title || "المنتجات الرائجة"} products={context.data.trendingProducts || []} emptyText="لا توجد منتجات رائجة حالياً" content={context.content} /></>;
+    case "stores":
     case "trending_stores":
       return <><HomeExposureSlot placement="homepage_trending_stores" cards={context.homeExposures.homepage_trending_stores as any} label="متاجر رائجة ممولة" /><FeaturedStores stores={context.data.trendingStores?.length ? context.data.trendingStores : context.featuredStores} marqueeStores={context.marqueeStores} title={section.title || "المتاجر الرائجة"} content={context.content} /></>;
     case "latest_additions":

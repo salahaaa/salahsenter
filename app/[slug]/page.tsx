@@ -10,7 +10,10 @@ import { StructuredData, breadcrumbJsonLd } from "@/components/seo/structured-da
 import { cmsPages, db } from "@/lib/db";
 import { absolutePublicUrl } from "@/lib/seo";
 
+import { hasDatabase } from "@/lib/db/queries";
+
 async function getPublicCmsPage(slug: string) {
+  if (/^favicon\.|^robots\.txt|^sitemap\.xml/i.test(slug) || !hasDatabase()) return null;
   return (await db.select().from(cmsPages).where(and(eq(cmsPages.slug, slug), eq(cmsPages.status, "active"))).limit(1))[0] || null;
 }
 

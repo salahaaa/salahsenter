@@ -426,18 +426,18 @@ function rankingScoreSql(kind: "store" | "product", rules: HomeVisibilityRules) 
   const w = rules.rankingWeights;
   if (kind === "store") {
     return sql<number>`(
-      coalesce(${stores.salesTotal}, 0) * ${w.sales / 100} +
-      coalesce(${stores.ratingAverage}, 0) * 20 * ${w.ratings / 100} +
-      coalesce(${stores.orderCount}, 0) * ${w.activity / 100} +
-      coalesce(${stores.profileCompleteness}, 0) * ${w.dataQuality / 100} +
+      coalesce(${stores.salesTotal}, 0)::numeric * ${w.sales / 100}::numeric +
+      coalesce(${stores.ratingAverage}, 0)::numeric * 20 * ${w.ratings / 100}::numeric +
+      coalesce(${stores.orderCount}, 0)::numeric * ${w.activity / 100}::numeric +
+      coalesce(${stores.profileCompleteness}, 0)::numeric * ${w.dataQuality / 100}::numeric +
       case when coalesce(${stores.salesTotal}, 0) > 0 or coalesce(${stores.orderCount}, 0) > 0 then ${w.promoted / 4} else 0 end +
       case when ${stores.createdAt} >= now() - (${rules.fairness.newStoreBoostDays} || ' days')::interval then ${w.freshness} else 0 end
     )`;
   }
   return sql<number>`(
-    coalesce(${products.soldCount}, 0) * ${w.sales / 100} +
-    coalesce(${products.ratingAverage}, 0) * 20 * ${w.ratings / 100} +
-    coalesce(${products.viewCount}, 0) * ${w.views / 100} +
+    coalesce(${products.soldCount}, 0)::numeric * ${w.sales / 100}::numeric +
+    coalesce(${products.ratingAverage}, 0)::numeric * 20 * ${w.ratings / 100}::numeric +
+    coalesce(${products.viewCount}, 0)::numeric * ${w.views / 100}::numeric +
     case when ${products.isPromoted} then ${w.promoted} else 0 end +
     case when ${products.createdAt} >= now() - (${rules.fairness.avoidProductRepeatDays} || ' days')::interval then ${w.freshness} else 0 end
   )`;

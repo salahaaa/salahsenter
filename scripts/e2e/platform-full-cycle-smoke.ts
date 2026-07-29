@@ -194,8 +194,8 @@ async function main() {
     await completeIdempotentRequest(tx, { scope: "orders:create", key: runId, responseBody: { order, invoice, items: 1 }, statusCode: 201 });
     return { order, item, invoice, pay, ship };
   });
-  const [afterReserve] = await db.select({ stockQuantity: productVariants.stockQuantity }).from(productVariants).where(eq(productVariants.id, variant.id)).limit(1);
-  check("إنشاء طلب وحجز المخزون ذرياً", afterReserve.stockQuantity === 18, { stockAfterReserve: afterReserve.stockQuantity });
+  const [afterReserve] = await db.select({ stockQuantity: productVariants.stockQuantity, reservedQuantity: productVariants.reservedQuantity }).from(productVariants).where(eq(productVariants.id, variant.id)).limit(1);
+  check("إنشاء طلب وحجز المخزون ذرياً", afterReserve.stockQuantity - (afterReserve.reservedQuantity || 0) === 18, { stockAfterReserve: afterReserve.stockQuantity, reservedQuantity: afterReserve.reservedQuantity, availableStock: afterReserve.stockQuantity - (afterReserve.reservedQuantity || 0) });
 
   const replay = await db.transaction(async (tx) => beginIdempotentRequest(tx, { scope: "orders:create", key: runId, userId: customer.id, requestHash }));
   check("إعادة نفس idempotency تعيد replay ولا تنشئ طلباً", replay.replay === true);

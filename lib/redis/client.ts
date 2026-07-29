@@ -57,7 +57,7 @@ export function getRedisConfig(): RedisConfig {
     process.env.KV_REST_API_TOKEN ||
     process.env.VERCEL_KV_REST_API_TOKEN ||
     "";
-  const redisRequired = envFlag(process.env.REDIS_REQUIRED, true);
+  const redisRequired = envFlag(process.env.REDIS_REQUIRED, false);
 
   return {
     backend: url && token ? "upstash-rest" : "unconfigured",

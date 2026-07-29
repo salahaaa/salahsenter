@@ -10,8 +10,8 @@ class HomeDataTimeoutError extends Error {
 }
 
 function homeReadTimeoutMs() {
-  const configured = Number(process.env.HOME_DATA_TIMEOUT_MS || 5_000);
-  return Number.isFinite(configured) ? Math.min(Math.max(Math.floor(configured), 1_000), 10_000) : 5_000;
+  const configured = Number(process.env.HOME_DATA_TIMEOUT_MS || 25_000);
+  return Number.isFinite(configured) ? Math.min(Math.max(Math.floor(configured), 1_000), 30_000) : 5_000;
 }
 
 async function withinHomeReadBudget<T>(loader: () => Promise<T>, timeoutMs: number) {
