@@ -72,7 +72,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
           fullName: merchantUser.fullName || application.applicantName,
           phone: merchantUser.phone || application.applicantPhone,
           status: "active",
-          mustChangePassword: true,
+          mustChangePassword: false,
           updatedAt: new Date()
         })
         .where(eq(users.id, merchantUser.id))
@@ -255,7 +255,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
       message: activationMessage
     });
     // Never send a password. The signed-in applicant receives a one-time reset invite and must choose a new password.
-    await issuePasswordResetInvite({ user: result.merchantUser, identifier: result.merchantUser.email, requestUrl: request.url, purpose: "first_login", expiresMinutes: 24 * 60 }).catch((error) => console.error("First-login password invite failed", error));
+    // Applicant already has a password from their account registration; do not issue a mandatory reset invite.
 
     await writeAuditLog({
       actorId: session.userId,
