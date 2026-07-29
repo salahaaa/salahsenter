@@ -13,6 +13,7 @@ import { createOrUpdateRentalAgreement } from "@/lib/rentals/service";
 import { ensureStoreLaunchReadiness } from "@/lib/onboarding/store-launch-readiness";
 import { assertApplicationDocumentGate } from "@/lib/onboarding/merchant-application-documents";
 import { issuePasswordResetInvite } from "@/lib/auth/password-recovery";
+import { createSignedContractPdfArchive } from "@/lib/onboarding/application-pdf-archive";
 
 async function generateStoreNumber(tx: typeof db | any) {
   for (let i = 0; i < 8; i++) {
