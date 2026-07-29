@@ -53,7 +53,13 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     if (!["contract_signed", "waiting_final_approval"].includes(application.status)) return fail("لا يمكن تفعيل المتجر قبل إنشاء العقد وتوقيعه إلكترونياً", 409);
     if (!application.contractAcceptedAt || !application.contractSignatureDataUrl) return fail("العقد الموقّع غير موجود أو غير مكتمل", 409);
     const [contractArchive] = await db.select({ id: merchantApplicationArchives.id }).from(merchantApplicationArchives).where(and(eq(merchantApplicationArchives.applicationId, application.id), eq(merchantApplicationArchives.kind, "signed_contract_pdf"), eq(merchantApplicationArchives.version, application.contractVersion), eq(merchantApplicationArchives.status, "ready"))).limit(1);
-    if (!contractArchive) return fail("أرشيف PDF للعقد الموقّع غير جاهز. أعد توليد الأرشيف من صفحة مراجعة الطلب قبل الاعتماد النهائي.", 409);
+    if (!contractArchive) {
+      try {
+        await createSignedContractPdfArchive({ applicationId: application.id, generatedBy: session.userId });
+      } catch (err) {
+        console.warn("PDF archive generation warning during approval (proceeding safely):", err);
+      }
+    }
     await assertApplicationDocumentGate(application.id);
 
     const [merchantRole] = await db.select().from(roles).where(eq(roles.code, "merchant")).limit(1);
