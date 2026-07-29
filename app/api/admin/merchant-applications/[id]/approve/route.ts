@@ -4,7 +4,7 @@ import { and, eq, sql } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import { fail, handleApiError, ok } from "@/lib/api";
 import { requireAuth } from "@/lib/auth";
-import { db, contractEvents, merchantApplications, merchantContracts, merchantRevenueTerms, merchantApplicationArchives, merchants, notifications, products, roles, storeRentalAgreements, stores, storeWings, userRoles, users } from "@/lib/db";
+import { db, contractEvents, merchantApplications, merchantContracts, merchantRevenueTerms, merchantApplicationArchives, merchantApplicationDocumentRequirements, merchants, notifications, products, roles, storeRentalAgreements, stores, storeWings, userRoles, users } from "@/lib/db";
 import { assertAdmin } from "@/lib/rbac";
 import { uniqueSlug } from "@/lib/slug";
 import { writeAuditLog } from "@/lib/audit";
