@@ -2,7 +2,7 @@ import { z } from "zod";
 
 function isUrlOrPath(value: string) {
   if (value === "") return true;
-  if (value.startsWith("data:image/")) return false;
+  if (value.startsWith("data:image/")) return true;
   if (value.startsWith("/")) return true;
   try {
     const url = new URL(value);
