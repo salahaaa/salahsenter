@@ -86,7 +86,7 @@ const actionGroups: Array<{ title: string; subtitle: string; items: ActionItem[]
       { title: "مركز ذكاء التاجر", desc: "مهام ذكية واقتراحات تحتاج موافقتك قبل التنفيذ", href: "/merchant/ai-workbench", icon: Bot, color: "from-violet-700 to-fuchsia-500", badge: "AI Workbench" },
       { title: "منصة الإعلانات", desc: "حملات ممولة وقياس CTR/CPC/ROAS", href: "/merchant/ads", icon: Megaphone, color: "from-purple-600 to-indigo-500", badge: "Ads" },
       { title: "إعلانات وأخبار المتجر", desc: "نشرات، تنبيهات، ورسائل تظهر داخل صفحة المتجر", href: "/merchant/announcements", icon: Megaphone, color: "from-purple-600 to-indigo-500" },
-      { title: "العروض الموسمية", desc: "رفع عروض مرتبطة بمنتجات فعلية للمراجعة", href: "/merchant/offers", icon: Sparkles, color: "from-orange-500 to-red-500", badge: "تسويق" },
+      { title: "عروض وحزم المتجر", desc: "إنشاء عروض ترويجية وحزم خصم للمتجر وللرئيسية", href: "/merchant/offers", icon: Sparkles, color: "from-orange-500 to-red-500", badge: "عروض" },
       { title: "الإعداد الذكي للمتجر", desc: "تصميم وأقسام وبانرات ومنتجات تجريبية بنقرة", href: "/merchant/smart-setup", icon: Wand2, color: "from-emerald-600 to-cyan-500", badge: "AI Setup" },
       { title: "إطلاق المتجر للعامة", desc: "Checklist الجاهزية قبل ظهور المتجر للعملاء", href: "/merchant/launch-readiness", icon: CheckCircle2, color: "from-blue-700 to-indigo-500", badge: "Launch" },
       { title: "المحلات والفروع", desc: "إدارة فروع النشاط نفسه في مدن مختلفة تحت المجموعة التجارية", href: "/merchant/branches", icon: Store, color: "from-emerald-700 to-teal-500", badge: "Branches" },
