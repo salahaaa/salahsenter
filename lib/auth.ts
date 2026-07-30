@@ -238,5 +238,5 @@ export function hasMerchantAccess(session: SessionPayload | null) {
 export function hasStoreAccess(session: SessionPayload | null, storeId: string) {
   if (!session) return false;
   if (hasRole(session, "super_admin")) return true;
-  return session.roles.some((role) => role.storeId === storeId && role.scope === "store");
+  return session.roles.some((role) => (role.storeId === storeId || (!role.storeId && role.scope === "store") || role.code === "merchant_owner" || role.code === "merchant"));
 }
