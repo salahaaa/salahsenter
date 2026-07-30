@@ -26,3 +26,10 @@ public/uploads
 .env.test
 uploads/
 private-documents/
+
+# Temporary maintenance and diagnostic scripts
+scripts/cleanup-*.ts
+scripts/populate-*.ts
+scripts/verify-admin-*.ts
+scripts/verify-merchant-*.ts
+scripts/verify-accounting-*.ts
