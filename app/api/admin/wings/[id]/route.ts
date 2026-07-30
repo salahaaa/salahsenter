@@ -31,7 +31,6 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
     const session = await requireAuth();
     await assertAdmin(session, "wings.manage");
     const payload = wingSchema.partial().parse(await request.json());
-    if (payload.activityTemplateKey === null) return fail("لا يمكن فصل قالب التجهيز عن الجناح؛ عطّل الجناح إن لم يكن جاهزاً للاستخدام.", 422);
     if (payload.activityTemplateKey && !(await isAvailableActivityTemplateKey(payload.activityTemplateKey))) return fail("قالب تجهيز الجناح غير متاح أو معطل حالياً.", 422);
     const [before] = await db.select().from(wings).where(eq(wings.id, params.id)).limit(1);
     if (!before) return fail("الجناح غير موجود", 404);

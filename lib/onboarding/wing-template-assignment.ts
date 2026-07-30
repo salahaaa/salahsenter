@@ -23,12 +23,16 @@ export async function listActiveOnboardingWings(): Promise<OnboardingWing[]> {
     db
       .select({ id: wings.id, name: wings.name, activityTemplateKey: wings.activityTemplateKey, sortOrder: wings.sortOrder })
       .from(wings)
-      .where(and(eq(wings.isActive, true), isNotNull(wings.activityTemplateKey))),
+      .where(eq(wings.isActive, true)),
     listAvailableActivityTemplates()
   ]);
   const availableKeys = new Set(templates.map((template) => template.key));
-  return rows
-    .filter((wing): wing is OnboardingWing => typeof wing.activityTemplateKey === "string" && availableKeys.has(wing.activityTemplateKey))
+  return rows.map((wing) => ({
+    id: wing.id,
+    name: wing.name,
+    activityTemplateKey: (typeof wing.activityTemplateKey === "string" && availableKeys.has(wing.activityTemplateKey)) ? wing.activityTemplateKey : "wholesale-distribution",
+    sortOrder: wing.sortOrder
+  }))
     .sort((left, right) => left.sortOrder - right.sortOrder || left.name.localeCompare(right.name, "ar"));
 }
 
@@ -41,8 +45,8 @@ export async function resolveActivityTemplateForWing(wingId: string): Promise<Wi
   const wing = wingRows[0];
 
   if (!wing || !wing.isActive) return { ok: false, message: "الجناح المختار غير متاح حالياً." };
-  if (!wing.activityTemplateKey) return { ok: false, message: "هذا الجناح لم يُربط بعد بقالب تجهيز. راجع الإدارة لاختيار قالب الجناح." };
-  const template = templates.find((item) => item.key === wing.activityTemplateKey);
+  const effectiveKey = wing.activityTemplateKey || "wholesale-distribution";
+  const template = templates.find((item) => item.key === effectiveKey) || templates[0];
   if (!template) return { ok: false, message: "قالب تجهيز الجناح غير نشط حالياً. اختر جناحاً آخر أو راجع الإدارة." };
   return { ok: true, wing: { id: wing.id, name: wing.name, activityTemplateKey: wing.activityTemplateKey, sortOrder: wing.sortOrder }, template };
 }

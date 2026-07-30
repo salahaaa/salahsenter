@@ -71,8 +71,7 @@ export async function POST(request: Request) {
     const session = await requireAuth();
     await assertAdmin(session, "wings.manage");
     const payload = wingSchema.parse(await request.json());
-    if (!payload.activityTemplateKey) return fail("يجب ربط الجناح بقالب تجهيز واحد؛ الجناح هو قطاع التاجر في طلب فتح المتجر.", 422);
-    if (!(await isAvailableActivityTemplateKey(payload.activityTemplateKey))) return fail("قالب تجهيز الجناح غير متاح أو معطل حالياً.", 422);
+    if (payload.activityTemplateKey && !(await isAvailableActivityTemplateKey(payload.activityTemplateKey))) return fail("قالب تجهيز الجناح غير متاح أو معطل حالياً.", 422);
 
     const [wing] = await db
       .insert(wings)
