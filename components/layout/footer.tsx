@@ -18,6 +18,9 @@ export async function Footer() {
           <h3 className="font-black">روابط سريعة</h3>
           <ul className="mt-4 space-y-3 text-sm text-slate-300">
             <li><Link href="/apply-store">طلب فتح متجر</Link></li>
+            <li><Link href="/track-order">تتبع الطلبات</Link></li>
+            <li><Link href="/loyalty">برنامج ولاء المول 🎁</Link></li>
+            <li><Link href="/courier">بوابة مندوبي التوصيل 🚚</Link></li>
             <li><Link href="/admin">لوحة الأدمن</Link></li>
             <li><Link href="/merchant">لوحة التاجر</Link></li>
           </ul>
