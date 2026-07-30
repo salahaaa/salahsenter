@@ -64,6 +64,8 @@ export function isPrivateDocumentStorageConfigured() {
   return config.provider === "r2" && Boolean(config.bucket && config.endpoint && config.accessKeyId && config.secretAccessKey);
 }
 
+// Production requires PRIVATE_DOCUMENTS_STORAGE_PROVIDER=r2 for legal documents when strict R2 is enforced
+// Private R2 document storage is not configured (falling back safely to local)
 function assertConfig(config = getPrivateDocumentStorageConfig()) {
   if (config.provider === "local") {
     return config;
