@@ -51,7 +51,15 @@ export async function createErpIntegrationRequest(input: {
     if (!store) throw new ApiError("المتجر غير موجود", 404);
     if (store.merchantId !== input.merchantId) throw new ApiError("لا يمكنك طلب ربط ERP لمتجر لا تملكه", 403);
     const [active] = await tx.select({ id: erpIntegrationRequests.id, status: erpIntegrationRequests.status }).from(erpIntegrationRequests).where(and(eq(erpIntegrationRequests.storeId, input.storeId), inArray(erpIntegrationRequests.status, ["pending_review", "under_review", "needs_information", "approved_for_setup", "agent_connected", "mapping_in_progress", "ready_for_certification"]))).orderBy(desc(erpIntegrationRequests.createdAt)).limit(1);
-    if (active) throw new ApiError("يوجد طلب ربط ERP مفتوح لهذا المتجر بالفعل", 409);
+    if (active) {
+      const [updated] = await tx.update(erpIntegrationRequests).set({
+        provider: input.provider.trim(), erpVersion: input.erpVersion?.trim() || null,
+        erpType: input.erpType, connectionMethod: input.connectionMethod, branchCount: Math.max(0, Math.floor(input.branchCount)), warehouseCount: Math.max(0, Math.floor(input.warehouseCount)), businessActivity: input.businessActivity?.trim() || null, operationsVolume: input.operationsVolume?.trim() || null,
+        technicalContact: input.technicalContact || {}, readiness: input.readiness || {}, merchantNote: input.merchantNote?.trim() || null, status: "pending_review", updatedAt: new Date()
+      }).where(eq(erpIntegrationRequests.id, active.id)).returning();
+      await tx.insert(erpIntegrationRequestEvents).values({ requestId: active.id, storeId: input.storeId, actorId: input.merchantId, action: "resubmitted", afterData: updated });
+      return updated;
+    }
     const [request] = await tx.insert(erpIntegrationRequests).values({
       requestNumber: requestNumber(), storeId: input.storeId, merchantId: input.merchantId, provider: input.provider.trim(), erpVersion: input.erpVersion?.trim() || null,
       erpType: input.erpType, connectionMethod: input.connectionMethod, branchCount: Math.max(0, Math.floor(input.branchCount)), warehouseCount: Math.max(0, Math.floor(input.warehouseCount)), businessActivity: input.businessActivity?.trim() || null, operationsVolume: input.operationsVolume?.trim() || null,
